@@ -1,27 +1,26 @@
 import java.util.*;
 
 public class Order {
-    private int orderId;
     private List<MenuItem> items;
+    private String timeSlot;
     private double total;
-    private String status;
 
-    public Order(int orderId, List<MenuItem> items) {
-        this.orderId = orderId;
+    public Order(List<MenuItem> items, String timeSlot, double total) {
         this.items = items;
-        this.total = items.stream().mapToDouble(MenuItem::getPrice).sum();
-        this.status = "Placed";
+        this.timeSlot = timeSlot;
+        this.total = total;
     }
 
-    public void cancel() {
-        this.status = "Cancelled";
+    public void showOrder() {
+        System.out.println("Time Slot: " + timeSlot);
+        System.out.println("Items:");
+        for (MenuItem item : items) {
+            System.out.println("- " + item.getName() + " (Rs" + item.getPrice() + ")");
+        }
+        System.out.println("Total: Rs" + total);
     }
 
-    public String getStatus() { return status; }
-    public double getTotal() { return total; }
-
-    @Override
-    public String toString() {
-        return "Order#" + orderId + " " + items + " | Total: ₹" + total + " | Status: " + status;
+    public String getTimeSlot() {
+        return timeSlot;
     }
 }

@@ -1,14 +1,14 @@
-import java.util.*;
+import java.util.List;
 
 public class Order {
     private List<MenuItem> items;
     private String timeSlot;
     private double total;
 
-    public Order(List<MenuItem> items, String timeSlot) {
+    public Order(List<MenuItem> items, String timeSlot, double total) {
         this.items = items;
         this.timeSlot = timeSlot;
-        this.total = items.stream().mapToDouble(MenuItem::getPrice).sum();
+        this.total = total;
     }
 
     public void showOrder() {
@@ -20,7 +20,15 @@ public class Order {
         System.out.println("Total: Rs" + total);
     }
 
-    public String getTimeSlot() { return timeSlot; }
-    public double getTotal() { return total; }
-    public List<MenuItem> getItems() { return items; }
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public List<MenuItem> getItems() {
+        return items;
+    }
 }

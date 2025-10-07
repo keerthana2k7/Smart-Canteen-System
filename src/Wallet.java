@@ -5,16 +5,16 @@ public class Wallet {
         this.balance = balance;
     }
 
-    public void addMoney(double amount) {
-        balance += amount;
-    }
-
     public boolean deduct(double amount) {
         if (balance >= amount) {
             balance -= amount;
             return true;
         }
         return false;
+    }
+
+    public void addMoney(double amount) {
+        balance += amount;
     }
 
     public double getBalance() {

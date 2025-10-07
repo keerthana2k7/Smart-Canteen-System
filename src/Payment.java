@@ -1,4 +1,4 @@
-import java.util.*;
+import java.util.List;
 
 public class Payment {
     private Wallet wallet;
@@ -14,14 +14,12 @@ public class Payment {
             System.out.println("No orders to pay for.");
             return;
         }
-        Order lastOrder = orders.get(orders.size() - 1);
-        double total = lastOrder.getTotal();
-        if (wallet.deduct(total)) {
-            System.out.println("✅ Payment successful! Paid: Rs" + total);
-            ///System.out.println("Remaining Wallet Balance: Rs" + wallet.getBalance());
+
+        Order last = orders.get(orders.size() - 1);
+        if (wallet.deduct(last.getTotal())) {
+            System.out.println("✅ Payment successful for last order. Amount: Rs" + last.getTotal());
         } else {
-            System.out.println("❌ Not enough balance.");
+            System.out.println("❌ Not enough balance in wallet. Please recharge.");
         }
     }
 }
-payment 

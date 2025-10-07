@@ -4,6 +4,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         CanteenSystem system = new CanteenSystem();
+        Payment payment = new Payment(system.getWallet(), system.getOrders());
 
         while (true) {
             System.out.println("\n--- Smart Canteen System ---");
@@ -11,15 +12,16 @@ public class Main {
             System.out.println("2. Place Order (with Time Slot)");
             System.out.println("3. View Orders");
             System.out.println("4. Cancel Last Order");
-            System.out.println("5. Exit");
+            System.out.println("5. View Top Selling Items");
+            System.out.println("6. Make Payment for Last Order");
+            System.out.println("7. Exit");
             System.out.print("Enter choice: ");
 
             int choice = sc.nextInt();
             switch (choice) {
                 case 1 -> system.showMenu();
-
                 case 2 -> {
-                    sc.nextLine(); // clear buffer
+                    sc.nextLine();
                     System.out.print("Enter item numbers (comma separated): ");
                     String[] ids = sc.nextLine().split(",");
                     List<Integer> itemIds = new ArrayList<>();
@@ -45,10 +47,11 @@ public class Main {
 
                     system.placeOrder(itemIds, timeSlot);
                 }
-
                 case 3 -> system.showOrders();
                 case 4 -> system.cancelLastOrder();
-                case 5 -> {
+                case 5 -> system.showTopSellingItems();
+                case 6 -> payment.payForLastOrder();
+                case 7 -> { 
                     System.out.println("Thank you! Exiting...");
                     System.exit(0);
                 }

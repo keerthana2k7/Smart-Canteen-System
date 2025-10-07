@@ -5,10 +5,10 @@ public class Order {
     private String timeSlot;
     private double total;
 
-    public Order(List<MenuItem> items, String timeSlot, double total) {
+    public Order(List<MenuItem> items, String timeSlot) {
         this.items = items;
         this.timeSlot = timeSlot;
-        this.total = total;
+        this.total = items.stream().mapToDouble(MenuItem::getPrice).sum();
     }
 
     public void showOrder() {
@@ -20,7 +20,7 @@ public class Order {
         System.out.println("Total: Rs" + total);
     }
 
-    public String getTimeSlot() {
-        return timeSlot;
-    }
+    public String getTimeSlot() { return timeSlot; }
+    public double getTotal() { return total; }
+    public List<MenuItem> getItems() { return items; }
 }

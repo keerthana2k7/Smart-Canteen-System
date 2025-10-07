@@ -13,7 +13,7 @@ public class Main {
             System.out.println("3. View Orders");
             System.out.println("4. Cancel Last Order");
             System.out.println("5. View Top Selling Items");
-            System.out.println("6. Make Payment for Last Order");
+            System.out.println("6. Make Payment for Order");
             System.out.println("7. Exit");
             System.out.print("Enter choice: ");
 

@@ -18,9 +18,10 @@ public class Payment {
         double total = lastOrder.getTotal();
         if (wallet.deduct(total)) {
             System.out.println("✅ Payment successful! Paid: Rs" + total);
-            System.out.println("Remaining Wallet Balance: Rs" + wallet.getBalance());
+            ///System.out.println("Remaining Wallet Balance: Rs" + wallet.getBalance());
         } else {
-            System.out.println("❌ Not enough balance. Please recharge.");
+            System.out.println("❌ Not enough balance.");
         }
     }
 }
+payment 

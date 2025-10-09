@@ -1,11 +1,9 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CanteenSystem {
     private List<MenuItem> menu = new ArrayList<>();
-    private List<Order> orders = new ArrayList<>();
-    private Wallet wallet = new Wallet(200); // Default ₹200
-    private String topSellingItem = "Dosa"; // Default top-selling item
+    private Queue<Order> orders = new LinkedList<>();
+    private Map<String, Integer> salesCount = new HashMap<>();
 
     public CanteenSystem() {
         menu.add(new MenuItem("Idli", 30));
@@ -32,6 +30,9 @@ public class CanteenSystem {
                 MenuItem item = menu.get(id - 1);
                 selectedItems.add(item);
                 total += item.getPrice();
+
+                // Update sales count
+                salesCount.put(item.getName(), salesCount.getOrDefault(item.getName(), 0) + 1);
             } else {
                 System.out.println("Invalid item ID: " + id);
             }
@@ -48,9 +49,10 @@ public class CanteenSystem {
             System.out.println("\nNo orders placed yet.");
         } else {
             System.out.println("\n--- All Orders ---");
-            for (int i = 0; i < orders.size(); i++) {
-                System.out.println("Order " + (i + 1) + ":");
-                orders.get(i).showOrder();
+            int count = 1;
+            for (Order order : orders) {
+                System.out.println("Order " + count++ + ":");
+                order.showOrder();
                 System.out.println("----------------------");
             }
         }
@@ -58,23 +60,25 @@ public class CanteenSystem {
 
     public void cancelLastOrder() {
         if (!orders.isEmpty()) {
-            Order cancelled = orders.remove(orders.size() - 1);
+            Order cancelled = ((LinkedList<Order>) orders).removeLast();
             System.out.println("\n❌ Last order canceled for time slot: " + cancelled.getTimeSlot());
         } else {
             System.out.println("\nNo orders to cancel.");
         }
     }
 
-    public Wallet getWallet() {
-        return wallet;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    // ---------------- Top Selling Item ----------------
     public void showTopSellingItem() {
-        System.out.println("\n🔥 Top Selling Item: " + topSellingItem + " 🔥");
+        if (salesCount.isEmpty()) {
+            System.out.println("\nNo sales data available yet.");
+            return;
+        }
+
+        PriorityQueue<Map.Entry<String, Integer>> pq = new PriorityQueue<>(
+                (a, b) -> b.getValue() - a.getValue()
+        );
+        pq.addAll(salesCount.entrySet());
+
+        Map.Entry<String, Integer> top = pq.peek();
+        System.out.println("\n🔥 Top Selling Item: " + top.getKey() + " (" + top.getValue() + " sold) 🔥");
     }
 }

@@ -1,12 +1,9 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         CanteenSystem system = new CanteenSystem();
-        Payment payment = new Payment(system.getWallet(), system.getOrders());
 
         while (true) {
             System.out.println("\n--- Smart Canteen System ---");
@@ -15,8 +12,7 @@ public class Main {
             System.out.println("3. View Orders");
             System.out.println("4. Cancel Last Order");
             System.out.println("5. Show Top Selling Item");
-            System.out.println("6. Make Payment for Last Order");
-            System.out.println("7. Exit");
+            System.out.println("6. Exit");
             System.out.print("Enter choice: ");
 
             int choice = sc.nextInt();
@@ -52,8 +48,7 @@ public class Main {
                 case 3 -> system.showOrders();
                 case 4 -> system.cancelLastOrder();
                 case 5 -> system.showTopSellingItem();
-                case 6 -> payment.payForLastOrder();
-                case 7 -> {
+                case 6 -> {
                     System.out.println("Thank you! Exiting...");
                     System.exit(0);
                 }

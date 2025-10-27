@@ -13,6 +13,6 @@ public class Payment {
             total += order.getTotal();
         }
         System.out.println("\n Total amount to pay: Rs" + total);
-        System.out.println("✅ Payment successful!");
+        System.out.println(" Payment successful!");
     }
 }

@@ -2,10 +2,9 @@ import java.sql.*;
 
 public class Logout {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/smart_canteen";
-    private static final String DB_USER = "root"; // your MySQL username
-    private static final String DB_PASS = "";     // your MySQL password (if any)
+    private static final String DB_USER = "root"; 
+    private static final String DB_PASS = "";     
 
-    // ✅ When user logs out, delete their record
     public void logout(String username) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
             String deleteQuery = "DELETE FROM users WHERE username=?";
@@ -14,12 +13,12 @@ public class Logout {
             int rows = ps.executeUpdate();
 
             if (rows > 0) {
-                System.out.println("👋 Goodbye, " + username + "! Your account has been deleted successfully.");
+                System.out.println(" Goodbye, " + username + "! Your account has been logged successfully.");
             } else {
-                System.out.println("⚠️ No such user found in database.");
+                System.out.println(" No such user found in database.");
             }
         } catch (SQLException e) {
-            System.out.println("⚠️ Error during logout: " + e.getMessage());
+            System.out.println(" Error during logout: " + e.getMessage());
         }
     }
 }

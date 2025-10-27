@@ -53,7 +53,7 @@ public class Main {
         System.out.println("2. Register");
         System.out.print("Enter your choice: ");
         int startChoice = sc.nextInt();
-        sc.nextLine(); // consume newline
+        sc.nextLine(); 
 
         boolean isLoggedIn = false;
         if (startChoice == 1) {
@@ -64,11 +64,10 @@ public class Main {
         }
 
         if (!isLoggedIn) {
-            System.out.println("❌ Login failed. Please try again later.");
+            System.out.println(" Login failed. Please try again later.");
             return;
         }
 
-        // ✅ Greet user
         System.out.println("\nHi, welcome " + login.getUsername() + "!");
 
         boolean exit = false;
@@ -130,10 +129,10 @@ public class Main {
                     String fullSlotLabel = SLOT_LABELS[slotChoice - 1];
                     String selectedSlot = fullSlotLabel.substring(fullSlotLabel.indexOf('.') + 1).trim();
                     LocalTime now = LocalTime.now();
-                    System.out.println("🕒 Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
+                    System.out.println(" Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
 
                     if (!isValidSlot(slotChoice, now)) {
-                        System.out.println("⚠ Please pick a valid *future* time slot!");
+                        System.out.println(" Please pick a valid *future* time slot!");
                         break;
                     }
 
@@ -151,7 +150,6 @@ public class Main {
             }
         }
 
-        // 🔓 After exit, ask for logout
         System.out.print("\nDo you want to logout? (yes/no): ");
         String logoutChoice = sc.nextLine().trim();
         if (logoutChoice.equalsIgnoreCase("yes")) {

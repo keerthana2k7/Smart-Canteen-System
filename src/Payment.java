@@ -1,25 +1,18 @@
 import java.util.List;
 
 public class Payment {
-    private Wallet wallet;
     private List<Order> orders;
 
-    public Payment(Wallet wallet, List<Order> orders) {
-        this.wallet = wallet;
+    public Payment(List<Order> orders) {
         this.orders = orders;
     }
 
-    public void payForLastOrder() {
-        if (orders.isEmpty()) {
-            System.out.println("No orders to pay for.");
-            return;
+    public void makePayment() {
+        double total = 0;
+        for (Order order : orders) {
+            total += order.getTotal();
         }
-
-        Order last = orders.get(orders.size() - 1);
-        if (wallet.deduct(last.getTotal())) {
-            System.out.println("✅ Payment successful for last order. Amount: Rs" + last.getTotal());
-        } else {
-            System.out.println("❌ Not enough balance in wallet. Please recharge.");
-        }
+        System.out.println("\n Total amount to pay: Rs" + total);
+        System.out.println("✅ Payment successful!");
     }
 }

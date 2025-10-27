@@ -31,7 +31,6 @@ public class CanteenSystem {
                 selectedItems.add(item);
                 total += item.getPrice();
 
-                // Update sales count
                 salesCount.put(item.getName(), salesCount.getOrDefault(item.getName(), 0) + 1);
             } else {
                 System.out.println("Invalid item ID: " + id);
@@ -40,7 +39,7 @@ public class CanteenSystem {
 
         Order order = new Order(selectedItems, timeSlot, total);
         orders.add(order);
-        System.out.println("\n✅ Order placed successfully for time slot: " + timeSlot);
+        System.out.println("\n Order placed successfully for time slot: " + timeSlot);
         System.out.println("Total amount: Rs" + total);
     }
 
@@ -61,7 +60,7 @@ public class CanteenSystem {
     public void cancelLastOrder() {
         if (!orders.isEmpty()) {
             Order cancelled = ((LinkedList<Order>) orders).removeLast();
-            System.out.println("\n❌ Last order canceled for time slot: " + cancelled.getTimeSlot());
+            System.out.println("\n Last order canceled for time slot: " + cancelled.getTimeSlot());
         } else {
             System.out.println("\nNo orders to cancel.");
         }
@@ -79,6 +78,6 @@ public class CanteenSystem {
         pq.addAll(salesCount.entrySet());
 
         Map.Entry<String, Integer> top = pq.peek();
-        System.out.println("\n🔥 Top Selling Item: " + top.getKey() + " (" + top.getValue() + " sold) 🔥");
+        System.out.println("\n Top Selling Item: " + top.getKey() + " (" + top.getValue() + " sold) ");
     }
 }

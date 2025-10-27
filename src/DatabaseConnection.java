@@ -5,16 +5,22 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/smart_canteen";
     private static final String USER = "root";
-    private static final String PASSWORD = ""; 
+    private static final String PASSWORD = "";
 
+    // ✅ Static method to get database connection
     public static Connection getConnection() {
-        Connection conn = null;
         try {
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            // Load the MySQL driver (optional for newer JDBC, but safe to include)
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Establish and return connection
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            System.out.println("❌ MySQL JDBC Driver not found! Please check your classpath.");
         } catch (SQLException e) {
-            System.out.println(" Database connection failed!");
-            e.printStackTrace();
+            System.out.println("❌ Database connection failed! Please check URL, user, or password.");
+            System.out.println("Error: " + e.getMessage());
         }
-        return conn;
+        return null;
     }
 }

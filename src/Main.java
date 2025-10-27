@@ -49,113 +49,160 @@ public class Main {
         Logout logout = new Logout();
 
         System.out.println("=== SMART CANTEEN SYSTEM ===");
-        System.out.println("1. Login");
-        System.out.println("2. Register");
+        System.out.println("1. Admin Login");
+        System.out.println("2. User Login");
+        System.out.println("3. Register User");
         System.out.print("Enter your choice: ");
         int startChoice = sc.nextInt();
-        sc.nextLine(); 
+        sc.nextLine();
 
         boolean isLoggedIn = false;
+        boolean isAdmin = false;
+
         if (startChoice == 1) {
-            isLoggedIn = login.login();
+            if (AdminLogin.validateAdmin()) {
+                isLoggedIn = true;
+                isAdmin = true;
+            } else {
+                System.out.println("Returning to main menu...");
+                return;
+            }
         } else if (startChoice == 2) {
+            isLoggedIn = login.login();
+        } else if (startChoice == 3) {
             login.register();
             isLoggedIn = login.login();
-        }
-
-        if (!isLoggedIn) {
-            System.out.println(" Login failed. Please try again later.");
+        } else {
+            System.out.println("Invalid option! Exiting...");
             return;
         }
 
-        System.out.println("\nHi, welcome " + login.getUsername() + "!");
+        if (!isLoggedIn) {
+            System.out.println("Login failed. Please try again later.");
+            return;
+        }
 
-        boolean exit = false;
-        while (!exit) {
-            System.out.println("\n--- Smart Canteen Menu ---");
-            System.out.println("1. View Menu");
-            System.out.println("2. Place Order (with Time Slot)");
-            System.out.println("3. View Orders");
-            System.out.println("4. Cancel Last Order");
-            System.out.println("5. Show Top Selling Item");
-            System.out.println("6. Exit");
-            System.out.print("Enter choice: ");
-            String inputLine = sc.nextLine().trim();
+        // ==================== ADMIN SIDE ====================
+        if (isAdmin) {
+            boolean exitAdmin = false;
+            while (!exitAdmin) {
+                System.out.println("\n=== ADMIN DASHBOARD ===");
+                System.out.println("1. View All Orders");
+                System.out.println("2. View Cancelled Orders");
+                System.out.println("3. Show Top Selling Item");
+                System.out.println("4. Update Menu Item");
+                System.out.println("5. Delete Menu Item");
+                System.out.println("6. Exit Admin");
+                System.out.print("Enter your choice: ");
 
-            int choice;
-            try {
-                choice = Integer.parseInt(inputLine);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input! Please enter a number.");
-                continue;
-            }
+                int adminChoice = sc.nextInt();
+                sc.nextLine();
 
-            switch (choice) {
-                case 1 -> canteen.showMenu();
-
-                case 2 -> {
-                    System.out.print("Enter item numbers (comma separated): ");
-                    String[] itemsInput = sc.nextLine().split(",");
-                    ArrayList<Integer> itemIds = new ArrayList<>();
-
-                    for (String s : itemsInput) {
-                        try {
-                            String trimmedS = s.trim();
-                            if (!trimmedS.isEmpty()) {
-                                itemIds.add(Integer.parseInt(trimmedS));
-                            }
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid item ID: " + s);
-                        }
+                switch (adminChoice) {
+                    case 1 -> canteen.showAllOrders();
+                    case 2 -> canteen.showCancelledOrders();
+                    case 3 -> canteen.showTopSellingItem();
+                    case 4 -> canteen.updateMenuItem();
+                    case 5 -> canteen.deleteMenuItem();
+                    case 6 -> {
+                        System.out.println("Exiting admin panel...");
+                        exitAdmin = true;
                     }
-
-                    System.out.println("\nAvailable Time Slots:");
-                    for (String label : SLOT_LABELS) System.out.println(label);
-                    System.out.print("Choose preferred time slot (1-" + SLOT_LABELS.length + "): ");
-
-                    int slotChoice;
-                    try {
-                        slotChoice = Integer.parseInt(sc.nextLine().trim());
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid time slot choice!");
-                        break;
-                    }
-
-                    if (slotChoice < 1 || slotChoice > SLOT_LABELS.length) {
-                        System.out.println("Invalid slot number!");
-                        break;
-                    }
-
-                    String fullSlotLabel = SLOT_LABELS[slotChoice - 1];
-                    String selectedSlot = fullSlotLabel.substring(fullSlotLabel.indexOf('.') + 1).trim();
-                    LocalTime now = LocalTime.now();
-                    System.out.println(" Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
-
-                    if (!isValidSlot(slotChoice, now)) {
-                        System.out.println(" Please pick a valid *future* time slot!");
-                        break;
-                    }
-
-                    canteen.placeOrder(itemIds, selectedSlot);
+                    default -> System.out.println("Invalid choice! Try again.");
                 }
-
-                case 3 -> canteen.showOrders();
-                case 4 -> canteen.cancelLastOrder();
-                case 5 -> canteen.showTopSellingItem();
-                case 6 -> {
-                    System.out.println("\nThank you for using Smart Canteen System!");
-                    exit = true;
-                }
-                default -> System.out.println("Invalid choice!");
             }
         }
 
-        System.out.print("\nDo you want to logout? (yes/no): ");
-        String logoutChoice = sc.nextLine().trim();
-        if (logoutChoice.equalsIgnoreCase("yes")) {
-            logout.logout(login.getUsername());
-        } else {
-            System.out.println("Session kept active.");
+        // ==================== USER SIDE ====================
+        else {
+            System.out.println("\nHi, welcome " + login.getUsername() + "!");
+            boolean exit = false;
+            while (!exit) {
+                System.out.println("\n--- Smart Canteen Menu ---");
+                System.out.println("1. View Menu");
+                System.out.println("2. Place Order (with Time Slot)");
+                System.out.println("3. View Orders");
+                System.out.println("4. Cancel Last Order");
+                System.out.println("5. Show Top Selling Item");
+                System.out.println("6. Exit");
+                System.out.print("Enter choice: ");
+                String inputLine = sc.nextLine().trim();
+
+                int choice;
+                try {
+                    choice = Integer.parseInt(inputLine);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input! Please enter a number.");
+                    continue;
+                }
+
+                switch (choice) {
+                    case 1 -> canteen.showMenu();
+
+                    case 2 -> {
+                        System.out.print("Enter item numbers (comma separated): ");
+                        String[] itemsInput = sc.nextLine().split(",");
+                        ArrayList<Integer> itemIds = new ArrayList<>();
+
+                        for (String s : itemsInput) {
+                            try {
+                                String trimmedS = s.trim();
+                                if (!trimmedS.isEmpty()) {
+                                    itemIds.add(Integer.parseInt(trimmedS));
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid item ID: " + s);
+                            }
+                        }
+
+                        System.out.println("\nAvailable Time Slots:");
+                        for (String label : SLOT_LABELS) System.out.println(label);
+                        System.out.print("Choose preferred time slot (1-" + SLOT_LABELS.length + "): ");
+
+                        int slotChoice;
+                        try {
+                            slotChoice = Integer.parseInt(sc.nextLine().trim());
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid time slot choice!");
+                            break;
+                        }
+
+                        if (slotChoice < 1 || slotChoice > SLOT_LABELS.length) {
+                            System.out.println("Invalid slot number!");
+                            break;
+                        }
+
+                        String fullSlotLabel = SLOT_LABELS[slotChoice - 1];
+                        String selectedSlot = fullSlotLabel.substring(fullSlotLabel.indexOf('.') + 1).trim();
+                        LocalTime now = LocalTime.now();
+                        System.out.println("Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
+
+                        if (!isValidSlot(slotChoice, now)) {
+                            System.out.println("Please pick a valid *future* time slot!");
+                            break;
+                        }
+
+                        canteen.placeOrder(itemIds, selectedSlot);
+                    }
+
+                    case 3 -> canteen.showOrders();
+                    case 4 -> canteen.cancelLastOrder();
+                    case 5 -> canteen.showTopSellingItem();
+                    case 6 -> {
+                        System.out.println("\nThank you for using Smart Canteen System!");
+                        exit = true;
+                    }
+                    default -> System.out.println("Invalid choice!");
+                }
+            }
+
+            System.out.print("\nDo you want to logout? (yes/no): ");
+            String logoutChoice = sc.nextLine().trim();
+            if (logoutChoice.equalsIgnoreCase("yes")) {
+                logout.logout(login.getUsername());
+            } else {
+                System.out.println("Session kept active.");
+            }
         }
     }
 }

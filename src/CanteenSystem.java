@@ -15,10 +15,10 @@ public class CanteenSystem {
              ResultSet rs = stmt.executeQuery("SELECT * FROM menu")) {
 
             while (rs.next()) {
-                  int id = rs.getInt("bill_no");
+                  int id = rs.getInt("id");
                 String name = rs.getString("name");
                 double price = rs.getDouble("price");
-                menuItems.add(new MenuItem(bill_no, name, price));
+                menuItems.add(new MenuItem(id, name, price));
 
 
             }

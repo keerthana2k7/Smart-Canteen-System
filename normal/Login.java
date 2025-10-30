@@ -2,15 +2,42 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Login {
-    private String username;
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/smart_canteen";
+    // Database credentials
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/canteen";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
 
+    private String username; // ✅ to store the logged-in username
+
+    // ✅ getter for username (used in Main.java)
     public String getUsername() {
         return username;
     }
 
+    // --- Login for GUI ---
+    public boolean login(String username, String password) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM users WHERE username=? AND password=?"
+            );
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                this.username = username; // ✅ store username
+                System.out.println("Login successful! Welcome, " + username + "!");
+                return true;
+            } else {
+                System.out.println("Invalid username or password!");
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Database error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // --- Validation methods ---
     private boolean isValidUsername(String username) {
         boolean correctLength = username.length() >= 8;
         boolean hasUppercase = username.matches(".*[A-Z].*");
@@ -23,21 +50,22 @@ public class Login {
         return password.matches("\\d{4}");
     }
 
+    // --- Register user ---
     public void register() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("\n Enter username (≥8 chars, 1 uppercase, 1 number, 1 special char): ");
+        System.out.print("\nEnter username (≥8 chars, 1 uppercase, 1 number, 1 special char): ");
         String uname = sc.nextLine().trim();
 
         if (!isValidUsername(uname)) {
-            System.out.println(" Invalid username! Must be at least 8 characters, include one uppercase letter, one number, and one special character.");
+            System.out.println("Invalid username! Must be at least 8 characters, include one uppercase letter, one number, and one special character.");
             return;
         }
 
-        System.out.print(" Enter 4-digit numeric password: ");
+        System.out.print("Enter 4-digit numeric password: ");
         String pwd = sc.nextLine().trim();
 
         if (!isValidPassword(pwd)) {
-            System.out.println(" Invalid password! Only 4 digits (0–9) are allowed — no letters or symbols.");
+            System.out.println("Invalid password! Only 4 digits (0–9) are allowed.");
             return;
         }
 
@@ -49,23 +77,24 @@ public class Login {
             ps.setString(1, uname);
             ps.setString(2, pwd);
             ps.executeUpdate();
-            System.out.println(" Registration successful!");
+            System.out.println("Registration successful!");
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println(" Username already exists. Try another one.");
+            System.out.println("Username already exists. Try another one.");
         } catch (SQLException e) {
-            System.out.println(" Database error: " + e.getMessage());
+            System.out.println("Database error: " + e.getMessage());
         }
     }
 
+    // --- Console login (used in Main.java) ---
     public boolean login() {
         Scanner sc = new Scanner(System.in);
         System.out.print("\n👤 Enter username: ");
         String uname = sc.nextLine().trim();
-        System.out.print(" Enter password: ");
+        System.out.print("Enter password: ");
         String pwd = sc.nextLine().trim();
 
         if (!isValidPassword(pwd)) {
-            System.out.println(" Invalid password format! Only 4 digits are allowed.");
+            System.out.println("Invalid password format! Only 4 digits are allowed.");
             return false;
         }
 
@@ -76,15 +105,15 @@ public class Login {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                username = uname;
-                System.out.println(" Login successful! Welcome, " + username + "!");
+                this.username = uname; // ✅ save username
+                System.out.println("Login successful! Welcome, " + username + "!");
                 return true;
             } else {
-                System.out.println(" Invalid credentials. Please register or try again.");
+                System.out.println("Invalid credentials. Please register or try again.");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println(" Database error: " + e.getMessage());
+            System.out.println("Database error: " + e.getMessage());
             return false;
         }
     }

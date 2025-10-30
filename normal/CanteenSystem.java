@@ -10,8 +10,7 @@ public class CanteenSystem {
 
     public void loadMenuFromDatabase() {
         menuItems.clear();
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM menu")) {
 
@@ -36,8 +35,7 @@ DatabaseConnection.getConnection();
     }
     
 public void addMenuItem(String name, double price) {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement("INSERT INTO menu (name, price, sales) VALUES (?, ?, 0)")) {
 
         ps.setString(1, name);
@@ -53,8 +51,7 @@ DatabaseConnection.getConnection();
 
 
 public void updateMenuItem(String oldName, String newName, double newPrice) {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement("UPDATE menu SET name = ?, price = ? WHERE name = ?")) {
 
         ps.setString(1, newName);
@@ -70,8 +67,7 @@ DatabaseConnection.getConnection();
 }
 
 public void deleteMenuItem(String name) {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement("DELETE FROM menu WHERE name = ?")) {
 
         ps.setString(1, name);
@@ -85,8 +81,7 @@ DatabaseConnection.getConnection();
 }
 
 public void showAllOrders() {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT * FROM orders")) {
 
@@ -104,8 +99,7 @@ DatabaseConnection.getConnection();
 }
 
 public void showCancelledOrders() {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT * FROM cancelled_orders")) {
 
@@ -122,8 +116,7 @@ DatabaseConnection.getConnection();
 }
 
 public void showTopSellingItem() {
-    try (Connection conn = 
-DatabaseConnection.getConnection();
+    try (Connection conn = DBConnection.getConnection();
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery("SELECT name, sales FROM menu ORDER BY sales DESC LIMIT 1")) {
 
@@ -181,8 +174,7 @@ DatabaseConnection.getConnection();
     }
 
     public void showOrders(String username) {
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("SELECT * FROM orders WHERE username = ?")) {
 
             ps.setString(1, username);
@@ -206,8 +198,7 @@ DatabaseConnection.getConnection();
     }
 
     public void cancelLastOrder(String username) {
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                      "SELECT id FROM orders WHERE username = ? ORDER BY id DESC LIMIT 1")) {
 
@@ -230,8 +221,7 @@ DatabaseConnection.getConnection();
     }
 
     public void addMenuItemAdmin(String name, double price) {
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("INSERT INTO menu (name, price, sales) VALUES (?, ?, 0)")) {
 
             ps.setString(1, name);
@@ -247,8 +237,7 @@ DatabaseConnection.getConnection();
 
     
     public void updateMenuItemAdmin(String oldName, String newName, double newPrice) {
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("UPDATE menu SET name = ?, price = ? WHERE name = ?")) {
 
             ps.setString(1, newName);
@@ -264,8 +253,7 @@ DatabaseConnection.getConnection();
     }
 
     public void deleteMenuItemAdmin(String name) {
-        try (Connection conn = 
-DatabaseConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("DELETE FROM menu WHERE name = ?")) {
 
             ps.setString(1, name);

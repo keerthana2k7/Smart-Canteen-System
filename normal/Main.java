@@ -20,7 +20,7 @@ public class Main {
         "13. 03:00 PM - 03:30 PM [15:00 - 15:30]",
         "14. 03:30 PM - 04:00 PM [15:30 - 16:00]",
         "15. 04:00 PM - 04:30 PM [16:30 - 17:00]",
-        "16. 04:30 PM - 05:00 AM [17:30 - 18:00]"
+        "16. 04:30 PM - 05:00 PM [17:30 - 18:00]"
     };
 
     private static final LocalTime[] SLOT_END_TIMES = {
@@ -60,18 +60,34 @@ public class Main {
 
             switch (startChoice) {
                 case 1 -> {
-                    if (login.login()) {
-                        username = login.getUsername();
+                    System.out.print("Enter username: ");
+                    String user = sc.nextLine().trim();
+                    System.out.print("Enter password: ");
+                    String pass = sc.nextLine().trim();
+
+                    if (login.login(user, pass)) {
+                        username = user;
                         userMenu(canteen, username, logout, login);
+                    } else {
+                        System.out.println("❌ Login failed. Please check your credentials.");
                     }
                 }
+
                 case 2 -> {
                     login.register();
-                    if (login.login()) {
-                        username = login.getUsername();
+                    System.out.print("Enter username to login: ");
+                    String user = sc.nextLine().trim();
+                    System.out.print("Enter password: ");
+                    String pass = sc.nextLine().trim();
+
+                    if (login.login(user, pass)) {
+                        username = user;
                         userMenu(canteen, username, logout, login);
+                    } else {
+                        System.out.println("❌ Login failed. Please try again.");
                     }
                 }
+
                 case 3 -> {
                     if (AdminLogin.validateAdmin()) {
                         adminMenu(canteen);
@@ -79,15 +95,16 @@ public class Main {
                         System.out.println("Returning to main menu...");
                     }
                 }
+
                 case 4 -> {
                     System.out.println(" Exiting... Thank you for using Smart Canteen System!");
                     System.exit(0);
                 }
+
                 default -> System.out.println(" Invalid choice! Try again.");
             }
         }
     }
-
 
     private static void userMenu(CanteenSystem canteen, String username, Logout logout, Login login) {
         Scanner sc = new Scanner(System.in);

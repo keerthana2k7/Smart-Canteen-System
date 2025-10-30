@@ -11,7 +11,7 @@ public class Payment {
 
     public void makePayment() {
         if (orders == null || orders.isEmpty()) {
-            System.out.println("\n⚠️ No orders found. Please place an order before proceeding to payment.");
+            System.out.println("\n No orders found. Please place an order before proceeding to payment.");
             return;
         }
 
@@ -21,7 +21,7 @@ public class Payment {
         }
 
         DecimalFormat df = new DecimalFormat("0.00");
-        System.out.println("\n💰 Total amount to pay: Rs " + df.format(total));
+        System.out.println("\n Total amount to pay: Rs " + df.format(total));
 
         Scanner sc = new Scanner(System.in);
         System.out.print("Select payment method (1 - Cash / 2 - Card / 3 - UPI): ");
@@ -29,19 +29,19 @@ public class Payment {
 
         switch (choice) {
             case 1:
-                System.out.println("✅ Payment successful via Cash!");
+                System.out.println(" Payment successful via Cash!");
                 break;
             case 2:
-                System.out.println("✅ Payment successful via Card!");
+                System.out.println(" Payment successful via Card!");
                 break;
             case 3:
-                System.out.println("✅ Payment successful via UPI!");
+                System.out.println(" Payment successful via UPI!");
                 break;
             default:
-                System.out.println("❌ Invalid option. Payment failed!");
+                System.out.println(" Invalid option. Payment failed!");
                 return;
         }
 
-        System.out.println("🧾 Thank you for your purchase!");
+        System.out.println(" Thank you for your purchase!");
     }
 }

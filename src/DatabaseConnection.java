@@ -7,18 +7,14 @@ public class DatabaseConnection {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    // ✅ Static method to get database connection
     public static Connection getConnection() {
         try {
-            // Load the MySQL driver (optional for newer JDBC, but safe to include)
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // Establish and return connection
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException e) {
-            System.out.println("❌ MySQL JDBC Driver not found! Please check your classpath.");
+            System.out.println(" MySQL JDBC Driver not found! Please check your classpath.");
         } catch (SQLException e) {
-            System.out.println("❌ Database connection failed! Please check URL, user, or password.");
+            System.out.println(" Database connection failed! Please check URL, user, or password.");
             System.out.println("Error: " + e.getMessage());
         }
         return null;

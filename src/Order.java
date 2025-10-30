@@ -2,7 +2,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class Order {
-    private static int billCounter = 1000; // Generates unique bill numbers
+    private static int billCounter = 1000; 
     private int billNo;
     private String username;
     private List<MenuItem> items;
@@ -20,16 +20,16 @@ public class Order {
     public void showOrder() {
         DecimalFormat df = new DecimalFormat("0.00");
         System.out.println("\n===============================");
-        System.out.println("🧾 BILL NO: " + billNo);
-        System.out.println("👤 USER: " + username);
-        System.out.println("⏰ TIME SLOT: " + timeSlot);
+        System.out.println(" BILL NO: " + billNo);
+        System.out.println(" USER: " + username);
+        System.out.println(" TIME SLOT: " + timeSlot);
         System.out.println("-------------------------------");
-        System.out.println("🍴 ITEMS ORDERED:");
+        System.out.println(" ITEMS ORDERED:");
         for (MenuItem item : items) {
             System.out.println(" - " + item.getName() + " (Rs " + df.format(item.getPrice()) + ")");
         }
         System.out.println("-------------------------------");
-        System.out.println("💰 TOTAL: Rs " + df.format(total));
+        System.out.println(" TOTAL: Rs " + df.format(total));
         System.out.println("===============================\n");
     }
 

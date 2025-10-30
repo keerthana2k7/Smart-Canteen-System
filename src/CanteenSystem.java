@@ -2,242 +2,267 @@ import java.sql.*;
 import java.util.*;
 
 public class CanteenSystem {
-    private final Map<Integer, String> menuItems = new LinkedHashMap<>();
-    private final Map<Integer, Double> prices = new LinkedHashMap<>();
-    private int lastBillNo = -1;
+    private List<MenuItem> menuItems = new ArrayList<>();
 
     public CanteenSystem() {
         loadMenuFromDatabase();
     }
 
-    // ✅ Load menu from the database
-    private void loadMenuFromDatabase() {
+    public void loadMenuFromDatabase() {
         menuItems.clear();
-        prices.clear();
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT * FROM menu");
-             ResultSet rs = ps.executeQuery()) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM menu")) {
 
-            int id = 1;
             while (rs.next()) {
-                menuItems.put(id, rs.getString("name"));
-                prices.put(id, rs.getDouble("price"));
-                id++;
+                  int id = rs.getInt("bill_no");
+                String name = rs.getString("name");
+                double price = rs.getDouble("price");
+                menuItems.add(new MenuItem(bill_no, name, price));
+
+
             }
+
+        if (menuItems.isEmpty()) {
+            menuItems.addAll(MenuItem.getDefaultMenu());
+        }
+
+
         } catch (SQLException e) {
-            System.out.println("❌ Error loading menu: " + e.getMessage());
+            System.out.println(" Error loading menu: " + e.getMessage());
+            menuItems.addAll(MenuItem.getDefaultMenu());
         }
     }
+    
+public void addMenuItem(String name, double price) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement("INSERT INTO menu (name, price, sales) VALUES (?, ?, 0)")) {
 
-    // ✅ Display menu
+        ps.setString(1, name);
+        ps.setDouble(2, price);
+        ps.executeUpdate();
+        System.out.println(" Item added successfully!");
+        loadMenuFromDatabase();
+
+    } catch (SQLException e) {
+        System.out.println(" Error adding item: " + e.getMessage());
+    }
+}
+
+
+public void updateMenuItem(String oldName, String newName, double newPrice) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement("UPDATE menu SET name = ?, price = ? WHERE name = ?")) {
+
+        ps.setString(1, newName);
+        ps.setDouble(2, newPrice);
+        ps.setString(3, oldName);
+        ps.executeUpdate();
+        System.out.println(" Item updated successfully!");
+        loadMenuFromDatabase();
+
+    } catch (SQLException e) {
+        System.out.println(" Error updating item: " + e.getMessage());
+    }
+}
+
+public void deleteMenuItem(String name) {
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement("DELETE FROM menu WHERE name = ?")) {
+
+        ps.setString(1, name);
+        ps.executeUpdate();
+        System.out.println(" Item deleted successfully!");
+        loadMenuFromDatabase();
+
+    } catch (SQLException e) {
+        System.out.println(" Error deleting item: " + e.getMessage());
+    }
+}
+
+public void showAllOrders() {
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery("SELECT * FROM orders")) {
+
+        System.out.println("\n--- ALL ORDERS ---");
+        while (rs.next()) {
+            System.out.printf("User: %s | Item: %s | Qty: %d | Time Slot: %s%n",
+                    rs.getString("username"),
+                    rs.getString("item_name"),
+                    rs.getInt("quantity"),
+                    rs.getString("time_slot"));
+        }
+    } catch (SQLException e) {
+        System.out.println(" Error fetching orders: " + e.getMessage());
+    }
+}
+
+public void showCancelledOrders() {
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery("SELECT * FROM cancelled_orders")) {
+
+        System.out.println("\n--- CANCELLED ORDERS ---");
+        while (rs.next()) {
+            System.out.printf("User: %s | Item: %s | Time: %s%n",
+                    rs.getString("username"),
+                    rs.getString("item_name"),
+                    rs.getString("cancel_time"));
+        }
+    } catch (SQLException e) {
+        System.out.println(" Error fetching cancelled orders: " + e.getMessage());
+    }
+}
+
+public void showTopSellingItem() {
+    try (Connection conn = DatabaseConnection.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery("SELECT name, sales FROM menu ORDER BY sales DESC LIMIT 1")) {
+
+        if (rs.next()) {
+            System.out.println("\n Top Selling Item ");
+            System.out.printf("%s - Sold %d times%n", rs.getString("name"), rs.getInt("sales"));
+        } else {
+            System.out.println("No sales data yet!");
+        }
+
+    } catch (SQLException e) {
+        System.out.println(" Error showing top item: " + e.getMessage());
+    }
+}
+
     public void showMenu() {
-        System.out.println("\n===== MENU =====");
-        for (int id : menuItems.keySet()) {
-            System.out.println(id + ". " + menuItems.get(id) + " - ₹" + prices.get(id));
-        }
-    }
-
-    // ✅ Place order (user)
-    public void placeOrder(String username, List<Integer> itemIds, String timeSlot) {
-        double total = 0;
-        StringBuilder orderedItems = new StringBuilder();
-
-        for (int id : itemIds) {
-            if (menuItems.containsKey(id)) {
-                orderedItems.append(menuItems.get(id)).append(", ");
-                total += prices.get(id);
-                incrementItemSales(menuItems.get(id)); // update sales count
-            } else {
-                System.out.println("⚠️ Invalid item ID: " + id);
+        loadMenuFromDatabase(); 
+        System.out.println("\n --- MENU ITEMS ---");
+        if (menuItems.isEmpty()) {
+            System.out.println("No items available in the menu.");
+        } else {
+            for (int i = 0; i < menuItems.size(); i++) {
+                MenuItem item = menuItems.get(i);
+                System.out.printf("%d. %s - ₹%.2f%n", i + 1, item.getName(), item.getPrice());
             }
         }
-
-        if (orderedItems.length() > 0)
-            orderedItems.setLength(orderedItems.length() - 2); // remove last comma
-
-        int billNo = saveOrderToDatabase(username, orderedItems.toString(), timeSlot, total);
-        if (billNo != -1) {
-            lastBillNo = billNo;
-            System.out.println("\n✅ Order placed successfully!");
-            System.out.println("🧾 Bill No: " + billNo);
-            System.out.println("Items: " + orderedItems);
-            System.out.println("Pickup Time Slot: " + timeSlot);
-            System.out.println("Total: ₹" + total);
-        } else {
-            System.out.println("❌ Failed to place order. Try again.");
-        }
     }
 
-    // ✅ Save order to database
-    private int saveOrderToDatabase(String username, String items, String timeSlot, double total) {
-        int billNo = -1;
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO orders (username, items, time_slot, total) VALUES (?, ?, ?, ?)",
-                     PreparedStatement.RETURN_GENERATED_KEYS)) {
+    public void placeOrder(String username, List<Integer> itemIds, String selectedSlot) {
+        if (itemIds.isEmpty()) {
+            System.out.println(" No items selected!");
+            return;
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "INSERT INTO orders (username, items, slot, status) VALUES (?, ?, ?, 'Pending')";
+            PreparedStatement ps = conn.prepareStatement(query);
+
+            List<String> orderedItems = new ArrayList<>();
+            for (int id : itemIds) {
+                if (id > 0 && id <= menuItems.size()) {
+                    orderedItems.add(menuItems.get(id - 1).getName());
+                }
+            }
 
             ps.setString(1, username);
-            ps.setString(2, items);
-            ps.setString(3, timeSlot);
-            ps.setDouble(4, total);
+            ps.setString(2, String.join(", ", orderedItems));
+            ps.setString(3, selectedSlot);
             ps.executeUpdate();
+            System.out.println(" Order placed successfully for " + username + "!");
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    billNo = rs.getInt(1);
-                }
-            }
         } catch (SQLException e) {
-            System.out.println("❌ Error saving order: " + e.getMessage());
+            System.out.println(" Error placing order: " + e.getMessage());
         }
-        return billNo;
     }
 
-    // ✅ Increment item sales in database
-    private void incrementItemSales(String itemName) {
+    public void showOrders(String username) {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("UPDATE menu SET sales = sales + 1 WHERE name = ?")) {
-            ps.setString(1, itemName);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            // Optional: ignore if column 'sales' doesn't exist
-        }
-    }
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM orders WHERE username = ?")) {
 
-    // ✅ Cancel order — move to cancelled_orders
-    public void cancelOrder(int billNo) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String insertSql = "INSERT INTO cancelled_orders (bill_no, username, items, time_slot, total) " +
-                    "SELECT bill_no, username, items, time_slot, total FROM orders WHERE bill_no = ?";
-            try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
-                insertPs.setInt(1, billNo);
-                int inserted = insertPs.executeUpdate();
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
 
-                if (inserted > 0) {
-                    try (PreparedStatement deletePs = conn.prepareStatement("DELETE FROM orders WHERE bill_no = ?")) {
-                        deletePs.setInt(1, billNo);
-                        deletePs.executeUpdate();
-                    }
-                    System.out.println("\n❌ Order with Bill No " + billNo + " cancelled successfully!");
-                } else {
-                    System.out.println("⚠️ No such order found!");
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("❌ Error cancelling order: " + e.getMessage());
-        }
-    }
-
-    // ✅ Top-selling item (for User/Admin)
-    public void showTopSellingItem() {
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT items FROM orders")) {
-
-            Map<String, Integer> countMap = new HashMap<>();
-            while (rs.next()) {
-                String[] ordered = rs.getString("items").split(",\\s*");
-                for (String item : ordered) {
-                    countMap.put(item, countMap.getOrDefault(item, 0) + 1);
-                }
-            }
-
-            if (countMap.isEmpty()) {
-                System.out.println("⚠️ No sales data available yet!");
-                return;
-            }
-
-            String topItem = Collections.max(countMap.entrySet(), Map.Entry.comparingByValue()).getKey();
-            int count = countMap.get(topItem);
-            System.out.println("\n🔥 Top-Selling Item: " + topItem + " (" + count + " sold)");
-        } catch (SQLException e) {
-            System.out.println("❌ Error fetching top item: " + e.getMessage());
-        }
-    }
-
-    // ✅ Admin: View all active orders
-    public void showAllOrders() {
-        try (Connection conn = DatabaseConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM orders")) {
-
-            System.out.println("\n📋 --- All Active Orders ---");
+            System.out.println("\n --- Your Orders ---");
             boolean hasOrders = false;
             while (rs.next()) {
                 hasOrders = true;
-                System.out.println("Bill No: " + rs.getInt("bill_no"));
-                System.out.println("User: " + rs.getString("username"));
+                System.out.println("Order ID: " + rs.getInt("id"));
                 System.out.println("Items: " + rs.getString("items"));
-                System.out.println("Time Slot: " + rs.getString("time_slot"));
-                System.out.println("Total: ₹" + rs.getDouble("total"));
-                System.out.println("---------------------------");
+                System.out.println("Slot: " + rs.getString("slot"));
+                System.out.println("Status: " + rs.getString("status"));
+                System.out.println("---------------------");
             }
-            if (!hasOrders) System.out.println("⚠️ No active orders found!");
+            if (!hasOrders) System.out.println(" No orders found.");
+
         } catch (SQLException e) {
-            System.out.println("❌ Error fetching orders: " + e.getMessage());
+            System.out.println(" Error fetching orders: " + e.getMessage());
         }
     }
 
-    // ✅ Admin: View cancelled orders
-    public void showCancelledOrders() {
+    public void cancelLastOrder(String username) {
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM cancelled_orders")) {
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT id FROM orders WHERE username = ? ORDER BY id DESC LIMIT 1")) {
 
-            System.out.println("\n🚫 --- Cancelled Orders ---");
-            boolean hasCancelled = false;
-            while (rs.next()) {
-                hasCancelled = true;
-                System.out.println("Bill No: " + rs.getInt("bill_no"));
-                System.out.println("User: " + rs.getString("username"));
-                System.out.println("Items: " + rs.getString("items"));
-                System.out.println("Time Slot: " + rs.getString("time_slot"));
-                System.out.println("Total: ₹" + rs.getDouble("total"));
-                System.out.println("---------------------------");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int orderId = rs.getInt("id");
+                PreparedStatement psDelete = conn.prepareStatement("DELETE FROM orders WHERE id = ?");
+                psDelete.setInt(1, orderId);
+                psDelete.executeUpdate();
+                System.out.println(" Last order cancelled successfully!");
+            } else {
+                System.out.println(" No orders found to cancel.");
             }
-            if (!hasCancelled) System.out.println("⚠️ No cancelled orders found!");
+
         } catch (SQLException e) {
-            System.out.println("❌ Error fetching cancelled orders: " + e.getMessage());
+            System.out.println(" Error cancelling order: " + e.getMessage());
         }
     }
 
-    // ✅ Admin: Add, update, delete menu
-    public void addMenuItem(String name, double price) {
+    public void addMenuItemAdmin(String name, double price) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("INSERT INTO menu (name, price, sales) VALUES (?, ?, 0)")) {
+
             ps.setString(1, name);
             ps.setDouble(2, price);
             ps.executeUpdate();
-            System.out.println("✅ Item added successfully!");
+            System.out.println(" Item added successfully!");
+
+            loadMenuFromDatabase(); 
         } catch (SQLException e) {
-            System.out.println("❌ Error adding item: " + e.getMessage());
+            System.out.println(" Error adding item: " + e.getMessage());
         }
-        loadMenuFromDatabase();
     }
 
-    public void updateMenuItem(String oldName, String newName, double newPrice) {
+    
+    public void updateMenuItemAdmin(String oldName, String newName, double newPrice) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("UPDATE menu SET name = ?, price = ? WHERE name = ?")) {
+
             ps.setString(1, newName);
             ps.setDouble(2, newPrice);
             ps.setString(3, oldName);
             ps.executeUpdate();
-            System.out.println("✅ Item updated successfully!");
+            System.out.println(" Item updated successfully!");
+
+            loadMenuFromDatabase(); 
         } catch (SQLException e) {
-            System.out.println("❌ Error updating item: " + e.getMessage());
+            System.out.println(" Error updating item: " + e.getMessage());
         }
-        loadMenuFromDatabase();
     }
 
-    public void deleteMenuItem(String name) {
+    public void deleteMenuItemAdmin(String name) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement("DELETE FROM menu WHERE name = ?")) {
+
             ps.setString(1, name);
             ps.executeUpdate();
-            System.out.println("✅ Item deleted successfully!");
+            System.out.println(" Item deleted successfully!");
+
+            loadMenuFromDatabase(); 
         } catch (SQLException e) {
-            System.out.println("❌ Error deleting item: " + e.getMessage());
+            System.out.println(" Error deleting item: " + e.getMessage());
         }
-        loadMenuFromDatabase();
     }
 }

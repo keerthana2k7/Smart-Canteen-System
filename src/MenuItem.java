@@ -1,16 +1,16 @@
-import java.util.*;
-
 public class MenuItem {
     private int id;
     private String name;
     private double price;
-    private int salesCount;
+    private int quantity;
+    private String availableFrom;
 
-    public MenuItem(int id, String name, double price) {
+    public MenuItem(int id, String name, double price, int quantity, String availableFrom) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.salesCount = 0;
+        this.quantity = quantity;
+        this.availableFrom = availableFrom;
     }
 
     public int getId() {
@@ -25,33 +25,24 @@ public class MenuItem {
         return price;
     }
 
-    public int getSalesCount() {
-        return salesCount;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void incrementSales() {
-        salesCount++;
+    public String getAvailableFrom() {
+        return availableFrom;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAvailableFrom(String availableFrom) {
+        this.availableFrom = availableFrom;
     }
 
-    public void displayItem() {
-        System.out.printf("%-3d %-20s Rs %.2f (Sold: %d)%n", id, name, price, salesCount);
-    }
-
-    public static List<MenuItem> getDefaultMenu() {
-        List<MenuItem> defaultMenu = new ArrayList<>();
-        defaultMenu.add(new MenuItem(1, "Idly", 20.0));
-        defaultMenu.add(new MenuItem(2, "Dosa", 30.0));
-        defaultMenu.add(new MenuItem(3, "Vada", 10.0));
-        defaultMenu.add(new MenuItem(4, "Poori", 35.0));
-        defaultMenu.add(new MenuItem(6, "Coffee", 20.0));
-        return defaultMenu;
+    @Override
+    public String toString() {
+        return name + " - ₹" + price + " (" + quantity + " left)";
     }
 }

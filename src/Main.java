@@ -5,23 +5,24 @@ import java.time.temporal.ChronoUnit;
 public class Main {
 
     private static final String[] SLOT_LABELS = {
-        "1. 09:00 AM - 09:30 AM [09:00 - 09:30]",
-        "2. 09:30 AM - 10:00 AM [09:30 - 10:00]",
-        "3. 10:00 AM - 10:30 AM [10:00 - 10:30]",
-        "4. 10:30 AM - 11:00 AM [10:30 - 11:00]",
-        "5. 11:00 AM - 11:30 AM [11:00 - 11:30]",
-        "6. 11:30 AM - 12:00 PM [11:30 - 12:00]",
-        "7. 12:00 PM - 12:30 PM [12:00 - 12:30]",
-        "8. 12:30 PM - 01:00 PM [12:30 - 13:00]",
-        "9. 01:00 PM - 01:30 PM [13:00 - 13:30]",
-        "10. 01:30 PM - 02:00 PM [13:30 - 14:00]",
-        "11. 02:00 PM - 02:30 PM [14:30 - 15:00]",
-        "12. 02:30 PM - 03:00 PM [14:30 - 15:00]",
-        "13. 03:00 PM - 03:30 PM [15:00 - 15:30]",
-        "14. 03:30 PM - 04:00 PM [15:30 - 16:00]",
-        "15. 04:00 PM - 04:30 PM [16:30 - 17:00]",
-        "16. 04:30 PM - 05:00 AM [17:30 - 18:00]"
-    };
+    "1. 09:00 AM - 09:30 AM [09:00 - 09:30]",
+    "2. 09:30 AM - 10:00 AM [09:30 - 10:00]",
+    "3. 10:00 AM - 10:30 AM [10:00 - 10:30]",
+    "4. 10:30 AM - 11:00 AM [10:30 - 11:00]",
+    "5. 11:00 AM - 11:30 AM [11:00 - 11:30]",
+    "6. 11:30 AM - 12:00 PM [11:30 - 12:00]",
+    "7. 12:00 PM - 12:30 PM [12:00 - 12:30]",
+    "8. 12:30 PM - 01:00 PM [12:30 - 13:00]",
+    "9. 01:00 PM - 01:30 PM [13:00 - 13:30]",
+    "10. 01:30 PM - 02:00 PM [13:30 - 14:00]",
+    "11. 02:00 PM - 02:30 PM [14:00 - 14:30]",
+    "12. 02:30 PM - 03:00 PM [14:30 - 15:00]",
+    "13. 03:00 PM - 03:30 PM [15:00 - 15:30]",
+    "14. 03:30 PM - 04:00 PM [15:30 - 16:00]",
+    "15. 04:00 PM - 04:30 PM [16:00 - 16:30]",
+    "16. 04:30 PM - 05:00 PM [16:30 - 17:00]"
+};
+
 
     private static final LocalTime[] SLOT_END_TIMES = {
         LocalTime.of(9, 30), LocalTime.of(10, 0),
@@ -80,14 +81,13 @@ public class Main {
                     }
                 }
                 case 4 -> {
-                    System.out.println(" Exiting... Thank you for using Smart Canteen System!");
+                    System.out.println("Exiting... Thank you for using Smart Canteen System!");
                     System.exit(0);
                 }
-                default -> System.out.println(" Invalid choice! Try again.");
+                default -> System.out.println("Invalid choice! Try again.");
             }
         }
     }
-
 
     private static void userMenu(CanteenSystem canteen, String username, Logout logout, Login login) {
         Scanner sc = new Scanner(System.in);
@@ -136,24 +136,27 @@ public class Main {
                     String selectedSlot = SLOT_LABELS[slotChoice - 1]
                             .substring(SLOT_LABELS[slotChoice - 1].indexOf('.') + 1).trim();
                     LocalTime now = LocalTime.now();
-                    System.out.println("Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
 
-                    if (!isValidSlot(slotChoice, now)) {
-                        System.out.println("Please pick a valid *future* time slot!");
-                        break;
-                    }
+if (!isValidSlot(slotChoice, now)) {
+    System.out.println("❌ Invalid time slot!");
+    System.out.println("Current Time: " + now.truncatedTo(ChronoUnit.MINUTES));
+    System.out.println("Please pick a *future* time slot after " + now.plusMinutes(5).truncatedTo(ChronoUnit.MINUTES));
+    break;
+}
 
-                    canteen.placeOrder(username, itemIds, selectedSlot);
+canteen.placeOrder(username, itemIds, selectedSlot);
+
+
                 }
                 case 3 -> canteen.showOrders(username);
                 case 4 -> canteen.cancelLastOrder(username);
-                case 5 -> canteen.showTopSellingItem();
+                case 5 -> canteen.showTopSellingItem(); // ✅ uses PriorityQueue logic now
                 case 6 -> {
-                    System.out.println("\n Logging out...");
+                    System.out.println("\nLogging out...");
                     logout.logout(username);
                     exit = true;
                 }
-                default -> System.out.println(" Invalid choice! Try again.");
+                default -> System.out.println("Invalid choice! Try again.");
             }
         }
     }
@@ -163,7 +166,7 @@ public class Main {
         boolean exitAdmin = false;
 
         while (!exitAdmin) {
-            System.out.println("\n --- ADMIN DASHBOARD ---");
+            System.out.println("\n--- ADMIN DASHBOARD ---");
             System.out.println("1. View Menu");
             System.out.println("2. View All Orders");
             System.out.println("3. View Cancelled Orders");
@@ -204,12 +207,12 @@ public class Main {
                     String name = sc.nextLine();
                     canteen.deleteMenuItem(name);
                 }
-                case 7 -> canteen.showTopSellingItem();
+                case 7 -> canteen.showTopSellingItem(); // ✅ Admin also sees via PriorityQueue
                 case 8 -> {
-                    System.out.println(" Admin logged out successfully!");
+                    System.out.println("Admin logged out successfully!");
                     exitAdmin = true;
                 }
-                default -> System.out.println(" Invalid choice! Try again.");
+                default -> System.out.println("Invalid choice! Try again.");
             }
         }
     }

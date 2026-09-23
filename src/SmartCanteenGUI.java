@@ -267,7 +267,7 @@ public class SmartCanteenGUI extends JFrame {
                 case "Cancel Last Order" -> btn.addActionListener(e -> cancelLastOrder());
                 case "Top Selling Item" -> btn.addActionListener(e -> showTopSellingItem());
                 case "Logout" -> btn.addActionListener(e -> { currentUser = null; cardLayout.show(mainPanel, "Landing"); });
-                case "A" -> btn.add()
+
             }
         }
         return panel;
